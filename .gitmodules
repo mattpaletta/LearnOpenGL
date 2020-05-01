@@ -1,0 +1,6 @@
+[submodule "docker-opengl"]
+	path = docker-opengl
+	url = https://github.com/thewtex/docker-opengl.git
+[submodule "example/assimp"]
+	path = example/assimp
+	url = https://github.com/assimp/assimp.git
