@@ -13,7 +13,7 @@ class Breakout;
 
 class Breakout : public Game {
 public:
-    Breakout(unsigned int width, unsigned int height) : Game(width, height, "Breakout") {}
+    Breakout(const int width, const int height) : Game(width, height, "Breakout") {}
 
     void Init() override;
     void Render() override;

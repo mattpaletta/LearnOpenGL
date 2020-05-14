@@ -14,15 +14,12 @@ private:
     Shader       shader;
     unsigned int quadVAO;
 
+	// Initializes and configures the quad's buffer and vertex attributes
     void initRenderData();
 
 public:
-    SpriteRenderer(Shader&& shader);
+    SpriteRenderer(const Shader& shader);
     ~SpriteRenderer();
-
-    // Delete copy expressions
-    SpriteRenderer(const SpriteRenderer&) = delete;
-    SpriteRenderer& operator=(const SpriteRenderer&) = delete;
 
     void DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size = glm::vec2(10.0f, 10.0f), const float& rotate = 0.0f, const glm::vec3& color = glm::vec3(1.0f));
 };

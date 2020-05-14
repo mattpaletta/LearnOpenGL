@@ -22,7 +22,7 @@ Engine::Engine(Game& _g) : SCREEN_WIDTH(_g.Width), SCREEN_HEIGHT(_g.Height), gam
     this->init_opengl();
 }
 
-Engine::Engine(const std::size_t& width, const std::size_t& height, Game& _g) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height), game(&_g), spriteRenderer() {
+Engine::Engine(const int width, const int height, Game& _g) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height), game(&_g), spriteRenderer() {
     this->init_opengl();
 }
 
@@ -31,7 +31,7 @@ Engine::~Engine() {
 }
 
 void Engine::setSpriteRendering(const std::string& resourceName) {
-    this->spriteRenderer = std::make_unique<SpriteRenderer>(std::move(ResourceManagerGetShader(resourceName)));
+    this->spriteRenderer = std::make_unique<SpriteRenderer>(ResourceManagerGetShader(resourceName));
 }
 
 void Engine::DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size, const float& rotate, const glm::vec3& color) {
@@ -126,7 +126,7 @@ void Engine::run() {
     while (!glfwWindowShouldClose(this->window)) {
         // calculate delta time
         // --------------------
-        float currentFrame = glfwGetTime();
+        double currentFrame = glfwGetTime();
         this->deltaTime = currentFrame - lastFrame;
         this->lastFrame = currentFrame;
         glfwPollEvents();

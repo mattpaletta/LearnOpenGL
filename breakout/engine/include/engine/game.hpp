@@ -20,11 +20,11 @@ public:
     // game state
     GameState    State;
     bool         Keys[1024];
-    unsigned int Width, Height;
+    int Width, Height;
     std::string name;
     
     // constructor/destructor
-    Game(const unsigned int width, const unsigned int height, const std::string& _name);
+    Game(const int width, const int height, const std::string& _name);
     ~Game();
 
     // Delete move and copy operators.
@@ -40,8 +40,8 @@ public:
     void SetEngineDelegate(Engine* engine);
 
     // game loop
-    virtual void ProcessInput(float dt);
-    virtual void Update(float dt);
+    virtual void ProcessInput(double dt);
+    virtual void Update(double dt);
     virtual void Render();
 
     virtual void pressed(int key);

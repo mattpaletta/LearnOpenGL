@@ -20,14 +20,14 @@
 
 class Engine {
 private:
-    std::size_t SCREEN_WIDTH;
-    std::size_t SCREEN_HEIGHT;
+    int SCREEN_WIDTH;
+    int SCREEN_HEIGHT;
     Game* game = nullptr;
 
     std::unique_ptr<SpriteRenderer> spriteRenderer = nullptr;
 
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
+    double deltaTime = 0.0f;
+    double lastFrame = 0.0f;
     
     // OpenGL Window
     GLFWwindow* window;
@@ -36,7 +36,7 @@ private:
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 public:
     Engine(Game& _g);
-    Engine(const std::size_t& width, const std::size_t& height, Game& _g);
+    Engine(const int width, const int height, Game& _g);
     ~Engine();
 
     Engine(const Engine&) = delete;
