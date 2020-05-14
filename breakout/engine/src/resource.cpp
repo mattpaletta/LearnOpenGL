@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 #include "stb_image/stb_image.h"
 
@@ -35,7 +36,7 @@ Shader& ResourceManager::GetShader(const std::string& name, const std::string& f
 }
 
 Texture2D& ResourceManager::LoadTexture(const std::string& file, const bool alpha, const std::string& name) {
-    Textures[name] = std::move(loadTextureFromFile(file.c_str(), alpha));
+    Textures.emplace(name, loadTextureFromFile(file.c_str(), alpha));
     return Textures[name];
 }
 
@@ -107,23 +108,28 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, const bool alph
     }
     // load image
     int width, height, nrChannels;
-#if DEBUG
+//#if DEBUG
     std::ifstream f(file);
     if (!f.good()) {
         std::cout << "Failed to open file: " << file << std::endl;
+    } else {
+        std::cout << "Opened file: " << file << std::endl;
     }
-#endif
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
-#if DEBUG
-    if (strlen(reinterpret_cast<char*>(data)) == 0) {
+    f.close();
+//#endif
+//    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(file, &width, &height, &nrChannels, STBI_default);
+//#if DEBUG
+    if (data == nullptr || strlen(reinterpret_cast<char*>(data)) == 0) {
         std::cout << "Tried to read file: " << file << " got empty data" << std::endl;
+    } else {
+        std::cout << "Successfully loaded texture: " << file << std::endl;
     }
-#endif
+//#endif
     // now generate texture
     texture.Generate(width, height, data);
 
     // and finally free image data
     stbi_image_free(data);
-    return texture;
+    return std::move(texture);
 }

@@ -16,9 +16,12 @@ void Texture2D::Generate(const std::size_t& width, const std::size_t& height, co
     this->Width = width;
     this->Height = height;
 
+    std::cout << "Creating texture with id: " << this->ID << std::endl;
+
     // create Texture
     glBindTexture(GL_TEXTURE_2D, this->ID);
     glTexImage2D(GL_TEXTURE_2D, 0, this->Internal_Format, width, height, 0, this->Image_Format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap( GL_TEXTURE_2D );
 
     // set Texture wrap and filter modes
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->Wrap_S);

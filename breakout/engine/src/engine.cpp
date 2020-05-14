@@ -38,9 +38,9 @@ void Engine::DrawSprite(const Texture2D& texture, const glm::vec2& position, con
     if (this->spriteRenderer) {
         this->spriteRenderer->DrawSprite(texture, position, size, rotate, color);
     } else {
-#if DEBUG
+//#if DEBUG
         std::cout << "Failed to find spriteRenderer" << __FILE__ << __LINE__ << std::endl;
-#endif
+//#endif
     }
 }
 
@@ -81,6 +81,11 @@ void Engine::init_opengl() {
     this->resizeable(false);
 
     this->window = glfwCreateWindow(this->SCREEN_WIDTH, this->SCREEN_HEIGHT, this->game->name.c_str(), nullptr, nullptr);
+    if (this->window == nullptr) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        throw std::runtime_error("Failed to create GLFW window");
+    }
     glfwMakeContextCurrent(this->window);
 
     // Hack to get the engine to register
@@ -95,7 +100,7 @@ void Engine::init_opengl() {
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader( (GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         throw std::runtime_error("Failed to initialize GLAD");
     }

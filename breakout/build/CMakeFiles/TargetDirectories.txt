@@ -1,7 +1,0 @@
-/Users/matthew/Projects/LearnOpenGL/breakout/build/CMakeFiles/breakout.dir
-/Users/matthew/Projects/LearnOpenGL/breakout/build/CMakeFiles/shaders.dir
-/Users/matthew/Projects/LearnOpenGL/breakout/build/CMakeFiles/ALL_BUILD.dir
-/Users/matthew/Projects/LearnOpenGL/breakout/build/CMakeFiles/ZERO_CHECK.dir
-/Users/matthew/Projects/LearnOpenGL/breakout/build/engine/CMakeFiles/engine.dir
-/Users/matthew/Projects/LearnOpenGL/breakout/build/engine/CMakeFiles/stb_image.dir
-/Users/matthew/Projects/LearnOpenGL/breakout/build/engine/CMakeFiles/glad.dir

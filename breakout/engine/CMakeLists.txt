@@ -14,9 +14,6 @@ file(GLOB INC_FILES include/engine/*.hpp include/engine/*.h)
 
 set(ENGINE_SRC ${SRC_FILES} ${INC_FILES})
 set(ENGINE_DEPS glad OpenGL::GL stb_image)
-set_property(GLOBAL PROPERTY ENGINE_SRC ${ENGINE_SRC})
-set_property(GLOBAL PROPERTY ENGINE_DEPS ${ENGINE_DEPS})
-message("engine deps: " ${ENGINE_DEPS})
 
 add_library(engine ${ENGINE_SRC})
 target_include_directories(engine PUBLIC include)

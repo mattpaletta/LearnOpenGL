@@ -38,6 +38,12 @@ public:
     Engine(Game& _g);
     Engine(const std::size_t& width, const std::size_t& height, Game& _g);
     ~Engine();
+
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
+    Engine(Engine&&) = delete;
+    Engine& operator=(Engine&&) = delete;
+
     void resizeable(bool value);
     void setSpriteRendering(const std::string& resourceName);
     void DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size = glm::vec2(10.0f, 10.0f), const float& rotate = 0.0f, const glm::vec3& color = glm::vec3(1.0f));

@@ -33,8 +33,8 @@ public:
     // constructor (sets default texture modes)
     Texture2D();
 
-    Texture2D(const Texture2D&) = delete;
-    Texture2D& operator=(const Texture2D&) = delete;
+//    Texture2D(const Texture2D&) = delete;
+//    Texture2D& operator=(const Texture2D&) = delete;
 
     // generates texture from image data
     void Generate(const std::size_t& width, const std::size_t& height, const unsigned char* data);

@@ -18,7 +18,7 @@ private:
 public:
 
     // constructor reads and builds the shader
-    Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath);
+    Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
 
     // use/activate the shader
     void use();

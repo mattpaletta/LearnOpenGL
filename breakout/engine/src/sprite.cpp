@@ -65,19 +65,27 @@ void SpriteRenderer::DrawSprite(const Texture2D& texture, const glm::vec2& posit
     this->shader.use();
     glCheckError();
 
-    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 model{1.0f};
+
+//    for (std::size_t i = 0; i < 4; ++i) {
+//        for (std::size_t j = 0; j < 4; ++j) {
+//            std::cout << model[i][j] << " ";
+//        }
+//        std::cout << std::endl;
+//    }
+
     model = glm::translate(model, glm::vec3(position, 0.0f));
 
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
-    model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
     // We've already 'set' it above.
     constexpr bool useShader = false;
-    this->shader.set("model", model, useShader);
-    this->shader.set("spriteColor", color, useShader);
+    this->shader.setMat4("model", model, useShader);
+    this->shader.setVec3("spriteColor", color, useShader);
 
     glActiveTexture(GL_TEXTURE0);
     glCheckError();

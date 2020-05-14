@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(breakout LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #set(ASSIMP_BUILD_TESTS OFF)
@@ -40,11 +40,10 @@ add_executable(breakout
     include/breakout.hpp
     src/sprite.vert
     src/sprite.frag
-	${ENGINE_SRC}
 )
 
 target_compile_definitions(breakout PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 target_include_directories(breakout PUBLIC include)
 target_include_directories(breakout PUBLIC engine/include)
 
-target_link_libraries(breakout ${ENGINE_DEPS} dl Threads::Threads ${GLFW_LIBRARIES})
+target_link_libraries(breakout engine dl Threads::Threads ${GLFW_LIBRARIES})
