@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 class Engine;
 
 // Represents the current state of the game
@@ -21,7 +24,7 @@ public:
     std::string name;
     
     // constructor/destructor
-    Game(unsigned int width, unsigned int height, const std::string& _name);
+    Game(const unsigned int width, const unsigned int height, const std::string& _name);
     ~Game();
 
     // Delete move and copy operators.

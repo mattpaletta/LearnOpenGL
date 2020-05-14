@@ -37,7 +37,7 @@ public:
 //    Texture2D& operator=(const Texture2D&) = delete;
 
     // generates texture from image data
-    void Generate(const std::size_t& width, const std::size_t& height, const unsigned char* data);
+    void Generate(const unsigned int width, const unsigned int height, unsigned char* data);
 
     // binds the texture as the current active GL_TEXTURE_2D texture object
     void Bind() const;

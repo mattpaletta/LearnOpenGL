@@ -10,16 +10,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <array>
 
-constexpr std::array<float, 4 * 2 * 3> get_cube_vertices() {
+constexpr std::array<float, 3 * 3 * 4> get_cube_vertices() {
     return {
-        // pos      // tex
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f,
-
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f
+		// positions          // colors           // texture coords
+		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
     };
 }
 
@@ -33,37 +30,46 @@ SpriteRenderer::~SpriteRenderer() {
 
 void SpriteRenderer::initRenderData() {
     // configure VAO/VBO
-    unsigned int VBO;
+    unsigned int VBO, EBO;
     constexpr auto cube = get_cube_vertices();
+	
+	unsigned int indices[] = {
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
+	};
 
     glGenVertexArrays(1, &this->quadVAO);
     glGenBuffers(1, &VBO);
-    glCheckError();
+	//glGenBuffers(1, &EBO);
+
+	glBindVertexArray(this->quadVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube.data()), cube.data(), GL_STATIC_DRAW);
-    glCheckError();
 
-    glBindVertexArray(this->quadVAO);
-    glCheckError();
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glCheckError();
 
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glCheckError();
+	// position attribute
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (0 * sizeof(float)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// texture coord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glCheckError();
+	this->shader.setInt("texture1", 0, true);
 
-    glBindVertexArray(0);
-    glCheckError();
 }
 
 void SpriteRenderer::DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size, const float& rotate, const glm::vec3& color) {
     // prepare transformations
-    this->shader.use();
-    glCheckError();
+    //this->shader.use();
+    //glCheckError();
 
     glm::mat4 model{1.0f};
 
@@ -83,21 +89,14 @@ void SpriteRenderer::DrawSprite(const Texture2D& texture, const glm::vec2& posit
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
     // We've already 'set' it above.
-    constexpr bool useShader = false;
-    this->shader.setMat4("model", model, useShader);
-    this->shader.setVec3("spriteColor", color, useShader);
-
+    //constexpr bool useShader = false;
+    //this->shader.setMat4("model", model, useShader);
+    //this->shader.setVec3("spriteColor", color, useShader);
+    this->shader.use();
     glActiveTexture(GL_TEXTURE0);
-    glCheckError();
     texture.Bind();
-    glCheckError();
-
+  
+	this->shader.use();
     glBindVertexArray(this->quadVAO);
-    glCheckError();
-
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glCheckError();
-
-    glBindVertexArray(0);
-    glCheckError();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

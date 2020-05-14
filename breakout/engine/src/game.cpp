@@ -1,7 +1,7 @@
 #include "engine/game.hpp"
 #include <iostream>
 
-Game::Game(unsigned int width, unsigned int height, const std::string& _name) : State(GAME_MENU), Keys(), Width(width), Height(height), name(_name) {}
+Game::Game(const unsigned int width, const unsigned int height, const std::string& _name) : State(GAME_MENU), Keys(), Width(width), Height(height), name(_name) {}
 
 Game::~Game() {}
 

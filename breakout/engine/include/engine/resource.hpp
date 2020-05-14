@@ -8,6 +8,7 @@
 #pragma once
 #include <string>
 #include <map>
+
 #include "shader.hpp"
 #include "texture.hpp"
 
@@ -38,7 +39,7 @@ public:
     static void Clear();
 private:
     // private constructor, that is we do not want any actual resource manager objects. Its members and functions should be publicly available (static).
-    ResourceManager() { }
+	ResourceManager() = default;
 
     // loads and generates a shader from file
     static Shader loadShaderFromFile(const std::string& vShaderFile, const std::string& fShaderFile, const std::string& gShaderFile = "");

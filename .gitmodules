@@ -4,3 +4,9 @@
 [submodule "example/assimp"]
 	path = example/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "breakout/glfw"]
+	path = breakout/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "example/-f"]
+	path = example/-f
+	url = https://github.com/assimp/assimp

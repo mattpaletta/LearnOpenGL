@@ -6,6 +6,7 @@
 //
 
 #include "engine/resource.hpp"
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -19,28 +20,32 @@ std::map<std::string, Shader>       ResourceManager::Shaders;
 
 Shader& ResourceManager::LoadShader(const std::string& vShaderFile, const std::string& fShaderFile, const std::string& gShaderFile, const std::string& name) {
     Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
-    return Shaders[name];
+    return ResourceManager::GetShader(name);
 }
 
 Shader& ResourceManager::GetShader(const std::string& name) {
+	if (Shaders.find(name) == Shaders.end()) {
+		std::cout << "Failed to get shader: " << name << std::endl;
+	}
     return Shaders[name];
 }
 
 Shader& ResourceManager::GetShader(const std::string& name, const std::string& file, const std::size_t& line) {
     if (Shaders.find(name) == Shaders.end()) {
-#if DEBUG
         std::cout << "Failed to get shader: " << name << " at: [" << file << ":" << line << "]" << std::endl;
-#endif
     }
     return Shaders[name];
 }
 
 Texture2D& ResourceManager::LoadTexture(const std::string& file, const bool alpha, const std::string& name) {
     Textures.emplace(name, loadTextureFromFile(file.c_str(), alpha));
-    return Textures[name];
+    return ResourceManager::GetTexture(name);
 }
 
 Texture2D& ResourceManager::GetTexture(const std::string& name) {
+	if (Textures.find(name) == Textures.end()) {
+		std::cout << "Failed to get texture: " << name << std::endl;
+	}
     return Textures[name];
 }
 
@@ -81,12 +86,14 @@ Shader ResourceManager::loadShaderFromFile(const std::string& vShaderFile, const
         vertexCode = readFile(vShaderFile);
     } catch(std::ifstream::failure e) {
         std::cout << "ERROR::VERTEX_SHADER::FILE_NOT_SUCCESFULLY_READ: " << vShaderFile << std::endl;
+		std::terminate();
     }
 
     try {
         fragmentCode = readFile(fShaderFile);
     } catch(std::ifstream::failure e) {
         std::cout << "ERROR::FRAGMENT_SHADER::FILE_NOT_SUCCESFULLY_READ: " << fShaderFile << std::endl;
+		std::terminate();
     }
 
 //    try {
@@ -96,7 +103,15 @@ Shader ResourceManager::loadShaderFromFile(const std::string& vShaderFile, const
 //    }
 
     // 2. now create shader object from source code
-    return {vertexCode, fragmentCode, geometryCode};
+	assert(vertexCode != "");
+	assert(fragmentCode != "");
+
+	Shader shader;
+	shader.Compile(
+		vertexCode.c_str(), 
+		fragmentCode.c_str(), 
+		geometryCode == "" ? nullptr : geometryCode.c_str());
+    return shader;
 }
 
 Texture2D ResourceManager::loadTextureFromFile(const char* file, const bool alpha) {
@@ -108,6 +123,7 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, const bool alph
     }
     // load image
     int width, height, nrChannels;
+
 //#if DEBUG
     std::ifstream f(file);
     if (!f.good()) {
@@ -117,8 +133,10 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, const bool alph
     }
     f.close();
 //#endif
+
 //    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, STBI_default);
+
 //#if DEBUG
     if (data == nullptr || strlen(reinterpret_cast<char*>(data)) == 0) {
         std::cout << "Tried to read file: " << file << " got empty data" << std::endl;
@@ -126,10 +144,11 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, const bool alph
         std::cout << "Successfully loaded texture: " << file << std::endl;
     }
 //#endif
+
     // now generate texture
     texture.Generate(width, height, data);
 
     // and finally free image data
     stbi_image_free(data);
-    return std::move(texture);
+    return texture;
 }

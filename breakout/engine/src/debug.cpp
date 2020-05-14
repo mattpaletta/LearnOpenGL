@@ -19,7 +19,7 @@ GLenum glCheckError_(const char *file, int line) {
 #if !__APPLE__
             case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
             case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+//             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
 #endif
             default: error = "Unknown Error: " + std::to_string(errorCode); break;
         }

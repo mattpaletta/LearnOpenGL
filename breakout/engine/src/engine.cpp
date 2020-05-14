@@ -74,8 +74,8 @@ void Engine::init_opengl() {
 #endif
 
 #if DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
+//   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif?
 
     // Default to false
     this->resizeable(false);
@@ -88,6 +88,13 @@ void Engine::init_opengl() {
     }
     glfwMakeContextCurrent(this->window);
 
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		throw std::runtime_error("Failed to initialize GLAD");
+	}
+
     // Hack to get the engine to register
     glfwSetWindowUserPointer(this->window, this);
     auto key_callback_lambda = [](GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -98,12 +105,7 @@ void Engine::init_opengl() {
     glfwSetKeyCallback(this->window, key_callback_lambda);
     glfwSetFramebufferSizeCallback(this->window, framebuffer_size_callback);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
-    if (!gladLoadGLLoader( (GLADloadproc) glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        throw std::runtime_error("Failed to initialize GLAD");
-    }
+    
 
     // OpenGL configuration
     // --------------------
@@ -117,7 +119,10 @@ void Engine::resizeable(bool value) {
 }
 
 void Engine::run() {
-    // Do the game loop
+	this->deltaTime = 0.f;
+	this->lastFrame = 0.f;
+
+	// Do the game loop
     while (!glfwWindowShouldClose(this->window)) {
         // calculate delta time
         // --------------------
@@ -140,6 +145,7 @@ void Engine::run() {
         // ------
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
         this->game->Render();
         glCheckError();
 

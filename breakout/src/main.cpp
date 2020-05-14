@@ -17,7 +17,6 @@ int main() {
 
     Engine e{b};
     b.SetEngineDelegate(&e);
-    e.resizeable(false);
 
     // Configure the game
     b.Init();
