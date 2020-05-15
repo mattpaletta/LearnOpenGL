@@ -20,7 +20,16 @@ int main() {
 
     // Configure the game
     b.Init();
-    b.State = GAME_MENU;
+	void DoCollisions(); void DoCollisions(); void DoCollisions(); void DoCollisions();
+
+
+
+
+
+
+
+    //b.State = GAME_MENU;
+	b.State = GAME_ACTIVE;
 
     // Start drawing the frames
     e.run();

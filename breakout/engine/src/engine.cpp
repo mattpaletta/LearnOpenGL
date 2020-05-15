@@ -34,6 +34,10 @@ void Engine::setSpriteRendering(const std::string& resourceName) {
     this->spriteRenderer = std::make_unique<SpriteRenderer>(ResourceManagerGetShader(resourceName));
 }
 
+SpriteRenderer* Engine::getRenderer() {
+	return this->spriteRenderer.get();
+}
+
 void Engine::DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size, const float& rotate, const glm::vec3& color) {
     if (this->spriteRenderer) {
         this->spriteRenderer->DrawSprite(texture, position, size, rotate, color);

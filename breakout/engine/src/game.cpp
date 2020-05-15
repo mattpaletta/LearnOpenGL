@@ -13,6 +13,8 @@ void Game::Init() {}
 
 void Game::Update(double dt) {}
 
+void Game::DoCollisions() {}
+
 void Game::ProcessInput(double dt) {}
 
 void Game::pressed(int key) {}

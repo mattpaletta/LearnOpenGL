@@ -16,5 +16,6 @@ set(ENGINE_SRC ${SRC_FILES} ${INC_FILES})
 set(ENGINE_DEPS glad OpenGL::GL stb_image)
 
 add_library(engine ${ENGINE_SRC})
+target_compile_definitions(engine PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 target_include_directories(engine PUBLIC include)
 target_link_libraries(engine ${ENGINE_DEPS})

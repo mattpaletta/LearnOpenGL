@@ -8,6 +8,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include <set>
 
 #include "shader.hpp"
 #include "texture.hpp"
@@ -22,7 +23,12 @@ public:
     static std::map<std::string, Shader>    Shaders;
     static std::map<std::string, Texture2D> Textures;
 
-    // loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
+#if DEBUG
+	static std::set<std::string> UnusedShaders;
+	static std::set<std::string> UnusedTextures;
+#endif
+
+	// loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
     static Shader& LoadShader(const std::string& vShaderFile, const std::string& fShaderFile, const std::string& gShaderFile, const std::string& name);
 
     // retrieves a stored sader

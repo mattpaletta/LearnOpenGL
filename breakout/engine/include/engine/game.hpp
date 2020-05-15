@@ -4,6 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "game_level.hpp"
+#include "game_object.hpp"
+
 class Engine;
 
 // Represents the current state of the game
@@ -16,12 +19,16 @@ enum GameState {
 class Game {
 protected:
     Engine* engine;
+	GameObject* Player;
 public:
     // game state
     GameState    State;
     bool         Keys[1024];
     int Width, Height;
     std::string name;
+	
+	unsigned int Level;
+	std::vector<GameLevel> Levels;
     
     // constructor/destructor
     Game(const int width, const int height, const std::string& _name);
@@ -36,8 +43,10 @@ public:
 
     // initialize game state (load all shaders/textures/levels)
     virtual void Init();
-
+	
     void SetEngineDelegate(Engine* engine);
+
+	virtual void DoCollisions();
 
     // game loop
     virtual void ProcessInput(double dt);

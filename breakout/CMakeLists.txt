@@ -34,16 +34,14 @@ message("Shaders: " ${EMBED_SHADER_OUTPUTS})
 
 add_library(shaders include/shaders.h ${EMBED_SHADER_OUTPUTS})
 
-# Include the engine as part of the game
-get_property(ENGINE_SRC GLOBAL PROPERTY ENGINE_SRC)
-get_property(ENGINE_DEPS GLOBAL PROPERTY ENGINE_DEPS)
-
 add_executable(breakout
     src/main.cpp
-    src/breakout.cpp
-    include/breakout.hpp
-    src/sprite.vert
-    src/sprite.frag
+    src/breakout.cpp include/breakout.hpp
+    src/ball_object.cpp include/ball_object.hpp
+    src/sprite.vert src/sprite.frag
+    src/particle.vert src/particle.frag
+    src/post_processing.vert src/post_processing.frag
+    src/breakout_effects.cpp include/breakout_effects.hpp
 )
 
 target_compile_definitions(breakout PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")

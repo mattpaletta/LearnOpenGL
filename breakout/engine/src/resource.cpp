@@ -18,27 +18,46 @@
 std::map<std::string, Texture2D>    ResourceManager::Textures;
 std::map<std::string, Shader>       ResourceManager::Shaders;
 
+#if DEBUG
+std::set<std::string>    ResourceManager::UnusedTextures;
+std::set<std::string>    ResourceManager::UnusedShaders;
+#endif
+
 Shader& ResourceManager::LoadShader(const std::string& vShaderFile, const std::string& fShaderFile, const std::string& gShaderFile, const std::string& name) {
     Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
+#if DEBUG
+	UnusedShaders.insert(name);
+#endif
     return ResourceManager::GetShader(name);
 }
 
 Shader& ResourceManager::GetShader(const std::string& name) {
+#if DEBUG
 	if (Shaders.find(name) == Shaders.end()) {
 		std::cout << "Failed to get shader: " << name << std::endl;
 	}
+	UnusedShaders.erase(name);
+#endif
     return Shaders[name];
 }
 
 Shader& ResourceManager::GetShader(const std::string& name, const std::string& file, const std::size_t& line) {
-    if (Shaders.find(name) == Shaders.end()) {
+#if DEBUG
+	if (Shaders.find(name) == Shaders.end()) {
         std::cout << "Failed to get shader: " << name << " at: [" << file << ":" << line << "]" << std::endl;
     }
-    return Shaders[name];
+
+	UnusedShaders.erase(name);
+#endif
+
+	return Shaders[name];
 }
 
 Texture2D& ResourceManager::LoadTexture(const std::string& file, const bool alpha, const std::string& name) {
     Textures.emplace(name, loadTextureFromFile(file.c_str(), alpha));
+#if DEBUG
+	UnusedTextures.insert(name);
+#endif
     return ResourceManager::GetTexture(name);
 }
 
@@ -46,17 +65,30 @@ Texture2D& ResourceManager::GetTexture(const std::string& name) {
 	if (Textures.find(name) == Textures.end()) {
 		std::cout << "Failed to get texture: " << name << std::endl;
 	}
+#if DEBUG
+	UnusedTextures.erase(name);
+#endif
     return Textures[name];
 }
 
 void ResourceManager::Clear() {
     // (properly) delete all shaders
     for (const auto& iter : Shaders) {
-        glDeleteProgram(iter.second.id());
+#if DEBUG
+		if (UnusedShaders.find(iter.first) != UnusedShaders.end()) {
+			std::cout << "Warning: shader loaded but never used: " << iter.first << std::endl;
+		}
+#endif
+		glDeleteProgram(iter.second.id());
     }
 
     // (properly) delete all textures
     for (const auto& iter : Textures) {
+#if DEBUG
+		if (UnusedTextures.find(iter.first) != UnusedTextures.end()) {
+			std::cout << "Warning: texture loaded but never used: " << iter.first << std::endl;
+		}
+#endif
         glDeleteTextures(1, &iter.second.ID);
     }
 }
@@ -103,8 +135,10 @@ Shader ResourceManager::loadShaderFromFile(const std::string& vShaderFile, const
 //    }
 
     // 2. now create shader object from source code
+#if DEBUG
 	assert(vertexCode != "");
 	assert(fragmentCode != "");
+#endif
 
 	Shader shader;
 	shader.Compile(
@@ -124,26 +158,16 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, const bool alph
     // load image
     int width, height, nrChannels;
 
-//#if DEBUG
+#if DEBUG
     std::ifstream f(file);
     if (!f.good()) {
         std::cout << "Failed to open file: " << file << std::endl;
-    } else {
-        std::cout << "Opened file: " << file << std::endl;
     }
     f.close();
-//#endif
+#endif
 
 //    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, STBI_default);
-
-//#if DEBUG
-    if (data == nullptr || strlen(reinterpret_cast<char*>(data)) == 0) {
-        std::cout << "Tried to read file: " << file << " got empty data" << std::endl;
-    } else {
-        std::cout << "Successfully loaded texture: " << file << std::endl;
-    }
-//#endif
 
     // now generate texture
     texture.Generate(width, height, data);
