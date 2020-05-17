@@ -23,13 +23,13 @@ int InitAL(const int desired_device = 0) {
         device = alcOpenDevice((const ALCchar*) std::to_string(desired_device).c_str());
         if(!device) {
             std::cerr << "Failed to open " << desired_device << ", trying default" << std::endl;
-	}
+        }
     }
     if (!device) {
 	char* s = (char *)alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER);
         std::cout << "Default Audio Device: " << s << std::endl;
         device = alcOpenDevice(NULL);
-    } 
+    }
 
     if (!device) {
         std::cerr << "Could not open a device!" << std::endl;
@@ -40,9 +40,9 @@ int InitAL(const int desired_device = 0) {
     if (ctx == NULL || alcMakeContextCurrent(ctx) == ALC_FALSE) {
         if(ctx != NULL) {
             alcDestroyContext(ctx);
-	}
+	    }
         alcCloseDevice(device);
-	std::cerr << "Could not set a context!" << std::endl;
+	    std::cerr << "Could not set a context!" << std::endl;
         return 1;
     }
 
@@ -65,8 +65,9 @@ void CloseAL(void) {
     ALCcontext *ctx;
 
     ctx = alcGetCurrentContext();
-    if(ctx == NULL)
+    if(ctx == NULL) {
         return;
+	}
 
     device = alcGetContextsDevice(ctx);
 
@@ -76,9 +77,8 @@ void CloseAL(void) {
 }
 
 
-const char *FormatName(ALenum format) {
-    switch(format)
-    {
+const std::string FormatName(ALenum format) {
+    switch(format) {
         case AL_FORMAT_MONO8: return "Mono, U8";
         case AL_FORMAT_MONO16: return "Mono, S16";
         case AL_FORMAT_STEREO8: return "Stereo, U8";
@@ -86,7 +86,6 @@ const char *FormatName(ALenum format) {
     }
     return "Unknown Format";
 }
-
 
 #ifdef _WIN32
 
@@ -141,13 +140,13 @@ int altime_get(void) {
     return cur_time - start_time;
 }
 
-void al_nssleep(unsigned long nsec)
-{
+void al_nssleep(unsigned long nsec) {
     struct timespec ts, rem;
     ts.tv_sec = (time_t)(nsec / 1000000000ul);
     ts.tv_nsec = (long)(nsec % 1000000000ul);
-    while(nanosleep(&ts, &rem) == -1 && errno == EINTR)
+    while(nanosleep(&ts, &rem) == -1 && errno == EINTR) {
         ts = rem;
+	}
 }
 
 #endif
@@ -171,18 +170,18 @@ static ALuint LoadSound(const std::string& filename) {
         std::cerr << "Could not open audio in " << filename << " : " << sf_strerror(sndfile) << std::endl;
         return 0;
     }
-    if(sfinfo.frames < 1 || sfinfo.frames > (sf_count_t) (INT_MAX/ sizeof(short)) / sfinfo.channels) {
-	std::cerr << "Bad sample count in " << filename << " (%" << sfinfo.frames << ")" << std::endl;;
+    if (sfinfo.frames < 1 || sfinfo.frames > (sf_count_t) (INT_MAX/ sizeof(short)) / sfinfo.channels) {
+	    std::cerr << "Bad sample count in " << filename << " (%" << sfinfo.frames << ")" << std::endl;;
         sf_close(sndfile);
         return 0;
     }
 
     /* Get the sound format, and figure out the OpenAL format */
-    if(sfinfo.channels == 1)
+    if(sfinfo.channels == 1) {
         format = AL_FORMAT_MONO16;
-    else if(sfinfo.channels == 2)
+	} else if(sfinfo.channels == 2) {
         format = AL_FORMAT_STEREO16;
-    else {
+	} else {
         std::cout << "Unsupported channel count: " << sfinfo.channels << std::endl;
         sf_close(sndfile);
         return 0;
@@ -195,10 +194,10 @@ static ALuint LoadSound(const std::string& filename) {
     if(num_frames < 1) {
         free(membuf);
         sf_close(sndfile);
-	std::cerr << "Failed to read samples in " << filename << " (%" << num_frames << ")" << std::endl;
+	    std::cerr << "Failed to read samples in " << filename << " (%" << num_frames << ")" << std::endl;
         return 0;
     }
-    num_bytes = (ALsizei)(num_frames * sfinfo.channels) * (ALsizei)sizeof(short);
+    num_bytes = (ALsizei) (num_frames * sfinfo.channels) * (ALsizei) sizeof(short);
 
     /* Buffer the audio data into a new buffer object, then free the data and
      * close the file.
@@ -214,8 +213,9 @@ static ALuint LoadSound(const std::string& filename) {
     err = alGetError();
     if(err != AL_NO_ERROR) {
         std::cerr << "OpenAL Error: " << alGetString(err) << std::endl;
-        if(buffer && alIsBuffer(buffer))
+        if (buffer && alIsBuffer(buffer)) {
             alDeleteBuffers(1, &buffer);
+		}
         return 0;
     }
 
@@ -251,10 +251,10 @@ void playSound() {
 
         /* Get the source offset. */
         alGetSourcef(source, AL_SEC_OFFSET, &offset);
-        printf("\rOffset: %f  ", offset);
-        fflush(stdout);
+		std::cout << "\rOffset: " << offset;
+		std::cout << std::endl;
     } while(alGetError() == AL_NO_ERROR && state == AL_PLAYING);
-    printf("\n");
+	std::cout << std::endl;
 
     /* All done. Delete resources, and close down OpenAL. */
     alDeleteSources(1, &source);
