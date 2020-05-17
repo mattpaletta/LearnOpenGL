@@ -18,6 +18,11 @@
 #include "particle.hpp"
 #include "particle_generator.hpp"
 
+#if ENABLE_AUDIO
+#include "audio.hpp"
+#endif
+
+
 #include <GLFW/glfw3.h>
 #include <utility>
 #include <memory>

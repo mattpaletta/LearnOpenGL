@@ -11,6 +11,8 @@ int main() {
     std::cout << "Starting Debug" << std::endl;
 #endif
 
+	playSound();
+
     constexpr int screen_width = 800;
     constexpr int screen_height = 600;
     Breakout b{screen_width, screen_height};
@@ -20,13 +22,6 @@ int main() {
 
     // Configure the game
     b.Init();
-	void DoCollisions(); void DoCollisions(); void DoCollisions(); void DoCollisions();
-
-
-
-
-
-
 
     //b.State = GAME_MENU;
 	b.State = GAME_ACTIVE;

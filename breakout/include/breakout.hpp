@@ -6,12 +6,13 @@
 //
 
 #pragma once
-#include <engine/game.hpp>
-#include <engine/particle_generator.hpp>
-#include "breakout_effects.hpp"
-
 #include <iostream>
 
+#include <engine/game.hpp>
+#include <engine/particle_generator.hpp>
+
+#include "breakout_effects.hpp"
+#include "power_up.hpp"
 #include "ball_object.hpp"
 
 class Breakout;
@@ -33,6 +34,9 @@ private:
 	// Effects Variables
 	float ShakeTime = 0.0f;
 
+
+	std::vector<PowerUp>  PowerUps;
+
 public:
     Breakout(const int width, const int height) : Game(width, height, "Breakout") {}
 
@@ -46,4 +50,8 @@ public:
 	void DoCollisions() override;
 
 	void ProcessInput(double dt) override;
+
+	void SpawnPowerUps(GameObject& block);
+	void UpdatePowerUps(float dt);
+	void ActivatePowerUp(const PowerUp& powerUp);
 };
