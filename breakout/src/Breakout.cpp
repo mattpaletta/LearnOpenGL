@@ -15,6 +15,22 @@
 #include "engine/resource.hpp"
 #include "engine/engine.hpp"
 
+glm::vec2 Breakout::PLAYER_SIZE() {
+	return this->engine->scaleObj(100.0f, 20.0f);
+}
+
+float Breakout::BALL_RADIUS() {
+	return this->engine->scaleObj( 12.5f );
+}
+
+float Breakout::PLAYER_VELOCITY() {
+	return this->engine->scaleObj( 500.0f );
+}
+
+glm::vec2 Breakout::INITIAL_BALL_VELOCITY() {
+	return this->engine->scaleObj(100.0f, -350.0f);
+}
+
 void Breakout::Init() {
 	// load shaders
 	ResourceManager::LoadShader("../src/sprite.vert", "../src/sprite.frag", "", "sprite");
@@ -64,12 +80,12 @@ void Breakout::Init() {
 	this->Level = 0;
 
 	const glm::vec2 playerPos{
-		this->Width / 2.0f - this->PLAYER_SIZE.x / 2.0f,
-		this->Height - this->PLAYER_SIZE.y };
-	this->Player = new GameObject(playerPos, this->PLAYER_SIZE, ResourceManager::GetTexture("paddle"));
+		this->Width / 2.0f - this->PLAYER_SIZE().x / 2.0f,
+		this->Height - this->PLAYER_SIZE().y };
+	this->Player = new GameObject(playerPos, this->PLAYER_SIZE(), ResourceManager::GetTexture("paddle"));
 
-	const glm::vec2 ballPos = playerPos + glm::vec2(this->PLAYER_SIZE.x / 2.0f - this->BALL_RADIUS, -this->BALL_RADIUS * 2.0f);
-	this->Ball = new BallObject(ballPos, this->BALL_RADIUS, this->INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("face"));
+	const glm::vec2 ballPos = playerPos + glm::vec2(this->PLAYER_SIZE().x / 2.0f - this->BALL_RADIUS(), -this->BALL_RADIUS() * 2.0f);
+	this->Ball = new BallObject(ballPos, this->BALL_RADIUS(), this->INITIAL_BALL_VELOCITY(), ResourceManager::GetTexture("face"));
 }
 
 void Breakout::ResetLevel() {
@@ -85,9 +101,9 @@ void Breakout::ResetLevel() {
 
 void Breakout::ResetPlayer() {
 	// reset player/ball stats
-	Player->Size = PLAYER_SIZE;
-	Player->Position = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
-	Ball->Reset(Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -(BALL_RADIUS * 2.0f)), INITIAL_BALL_VELOCITY);
+	Player->Size = PLAYER_SIZE();
+	Player->Position = glm::vec2(this->Width / 2.0f - PLAYER_SIZE().x / 2.0f, this->Height - PLAYER_SIZE().y);
+	Ball->Reset(Player->Position + glm::vec2(PLAYER_SIZE().x / 2.0f - BALL_RADIUS(), -(BALL_RADIUS() * 2.0f)), INITIAL_BALL_VELOCITY());
 
 	// also disable all active powerups
 	Effects->Chaos = Effects->Confuse = false;
@@ -144,7 +160,7 @@ void Breakout::Render() {
 				}
 			}
 
-			// draw particles	
+			// draw particles
 			this->Particles->Draw();
 
 			// draw ball last
@@ -183,7 +199,7 @@ typedef std::tuple<bool, Direction, glm::vec2> Collision;
 
 
 Collision CheckCollision(BallObject& one, GameObject& two) {// AABB - AABB collision
-	// get center point circle first 
+	// get center point circle first
 	glm::vec2 center(one.Position + one.Radius);
 	// calculate AABB info (center, half-extents)
 	glm::vec2 aabb_half_extents(two.Size.x / 2.0f, two.Size.y / 2.0f);
@@ -293,9 +309,9 @@ void Breakout::UpdatePowerUps(float dt) {
 		}
 	}
 	this->PowerUps.erase(
-		std::remove_if(this->PowerUps.begin(), this->PowerUps.end(), 
-			[](const PowerUp& powerUp) { 
-				return powerUp.Destroyed && !powerUp.Activated; 
+		std::remove_if(this->PowerUps.begin(), this->PowerUps.end(),
+			[](const PowerUp& powerUp) {
+				return powerUp.Destroyed && !powerUp.Activated;
 			}), this->PowerUps.end());
 }
 
@@ -374,12 +390,12 @@ void Breakout::DoCollisions() {
 		// then move accordingly
 		float strength = 2.0f;
 		glm::vec2 oldVelocity = Ball->Velocity;
-		Ball->Velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
-		
+		Ball->Velocity.x = INITIAL_BALL_VELOCITY().x * percentage * strength;
+
 		// We always know we have a collision on the top of the paddle
 		//Ball->Velocity.y = -Ball->Velocity.y;
-		Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);  		
-		
+		Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);
+
 		Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
 
 		// if Sticky powerup is activated, also stick ball to paddle once new velocity vectors were calculated
@@ -390,7 +406,7 @@ void Breakout::DoCollisions() {
 
 void Breakout::ProcessInput(double dt) {
 	if (this->State == GAME_ACTIVE) {
-		double velocity = PLAYER_VELOCITY * dt;
+		double velocity = PLAYER_VELOCITY() * dt;
 
 		// move player paddle
 		if (this->Keys[GLFW_KEY_A]) {
@@ -422,23 +438,25 @@ bool ShouldSpawn(const unsigned int& chance) {
 }
 
 void Breakout::SpawnPowerUps(GameObject& block) {
+	const auto powerup_size = this->engine->scaleObj(DEFAULT_POWERUP_SIZE.x, DEFAULT_POWERUP_SIZE.y);
+	const auto powerup_velocity = this->engine->scaleObj(DEFAULT_VELOCITY.x, DEFAULT_VELOCITY.y);
 	if (ShouldSpawn(75)) {// 1 in 75 chance
-		this->PowerUps.emplace_back(BreakoutPowerUp::Speed, glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block.Position, ResourceManager::GetTexture("powerup_speed"));
+		this->PowerUps.emplace_back(BreakoutPowerUp::Speed, glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block.Position, ResourceManager::GetTexture("powerup_speed"), powerup_size, powerup_velocity);
 	}
 	if (ShouldSpawn(75)) {
-		this->PowerUps.emplace_back(BreakoutPowerUp::Sticky, glm::vec3(1.0f, 0.5f, 1.0f), 20.0f, block.Position, ResourceManager::GetTexture("powerup_sticky"));
+		this->PowerUps.emplace_back(BreakoutPowerUp::Sticky, glm::vec3(1.0f, 0.5f, 1.0f), 20.0f, block.Position, ResourceManager::GetTexture("powerup_sticky"), powerup_size, powerup_velocity);
 	}
 	if (ShouldSpawn(75)) {
-		this->PowerUps.emplace_back(BreakoutPowerUp::Pass, glm::vec3(0.5f, 1.0f, 0.5f), 10.0f, block.Position, ResourceManager::GetTexture("powerup_passthrough"));
+		this->PowerUps.emplace_back(BreakoutPowerUp::Pass, glm::vec3(0.5f, 1.0f, 0.5f), 10.0f, block.Position, ResourceManager::GetTexture("powerup_passthrough"), powerup_size, powerup_velocity);
 	}
 	if (ShouldSpawn(75)) {
-		this->PowerUps.emplace_back(BreakoutPowerUp::Pad, glm::vec3(1.0f, 0.6f, 0.4), 0.0f, block.Position, ResourceManager::GetTexture("powerup_increase"));
+		this->PowerUps.emplace_back(BreakoutPowerUp::Pad, glm::vec3(1.0f, 0.6f, 0.4), 0.0f, block.Position, ResourceManager::GetTexture("powerup_increase"), powerup_size, powerup_velocity);
 	}
 
 	if (ShouldSpawn(15)) {// negative powerups should spawn more often
-		this->PowerUps.emplace_back(BreakoutPowerUp::Confuse, glm::vec3(1.0f, 0.3f, 0.3f), 15.0f, block.Position, ResourceManager::GetTexture("powerup_confuse"));
+		this->PowerUps.emplace_back(BreakoutPowerUp::Confuse, glm::vec3(1.0f, 0.3f, 0.3f), 15.0f, block.Position, ResourceManager::GetTexture("powerup_confuse"), powerup_size, powerup_velocity);
 	}
 	if (ShouldSpawn(15)) {
-		this->PowerUps.emplace_back(BreakoutPowerUp::Chaos, glm::vec3(0.9f, 0.25f, 0.25f), 15.0f, block.Position, ResourceManager::GetTexture("powerup_chaos"));
+		this->PowerUps.emplace_back(BreakoutPowerUp::Chaos, glm::vec3(0.9f, 0.25f, 0.25f), 15.0f, block.Position, ResourceManager::GetTexture("powerup_chaos"), powerup_size, powerup_velocity);
 	}
 }

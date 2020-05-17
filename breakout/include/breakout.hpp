@@ -19,21 +19,20 @@ class Breakout;
 
 class Breakout : public Game {
 private:
-	const glm::vec2 PLAYER_SIZE{ 100.0f, 20.f };
-	const GLfloat PLAYER_VELOCITY{ 500.0f };
+	glm::vec2 PLAYER_SIZE();
+	float PLAYER_VELOCITY();
 
 	// Initial velocity of the Ball
-	const glm::vec2 INITIAL_BALL_VELOCITY{ 100.0f, -350.0f };
+	glm::vec2 INITIAL_BALL_VELOCITY();
 
 	// Radius of the ball object
-	const float BALL_RADIUS { 12.5f };
+	float BALL_RADIUS();
 	BallObject* Ball;
 	ParticleGenerator* Particles;
 	BreakoutEffects* Effects;
 
 	// Effects Variables
 	float ShakeTime = 0.0f;
-
 
 	std::vector<PowerUp>  PowerUps;
 

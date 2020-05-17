@@ -231,7 +231,7 @@ void playSound() {
     	throw std::runtime_error("Failed to initalize OpenAL");
     }
 
-    const std::string audioPath{"../sounds/break.wav"};
+    const std::string audioPath{"../sounds/bleep.wav"};
     buffer = LoadSound(audioPath);
     if (!buffer) {
         CloseAL();

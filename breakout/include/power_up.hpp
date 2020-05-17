@@ -20,9 +20,14 @@ enum BreakoutPowerUp {
 	Chaos
 };
 
+// The size of a powerup block
+const glm::vec2 DEFAULT_POWERUP_SIZE { 60.0f, 20.0f };
+// velocity the powerup block falls when spawned
+const glm::vec2 DEFAULT_VELOCITY { 0.0f, 150.0f };
+
 // PowerUp inherits its state and rendering functions from
 // GameObject but also holds extra information to state its
-// active duration and whether it is activated or not. 
+// active duration and whether it is activated or not.
 // The type of PowerUp is stored as a BreakoutPowerup.
 class PowerUp : public GameObject {
 public:
@@ -30,5 +35,5 @@ public:
 	float Duration;
 	bool Activated;
 
-	PowerUp(const BreakoutPowerUp& type, glm::vec3 color, float duration, glm::vec2 position, const Texture2D& texture);
+	PowerUp(const BreakoutPowerUp& type, glm::vec3 color, float duration, glm::vec2 position, const Texture2D& texture, const glm::vec2 SIZE, const glm::vec2 VELOCITY);
 };

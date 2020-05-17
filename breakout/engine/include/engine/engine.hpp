@@ -52,6 +52,11 @@ public:
     Engine& operator=(const Engine&) = delete;
     Engine(Engine&&) = delete;
     Engine& operator=(Engine&&) = delete;
+	
+	int getScaledWidth();
+	int getScaledHeight();
+	glm::vec2 scaleObj(const float& desired_width, const float& desired_height);
+	float scaleObj(const float& desired_size);
 
     void resizeable(bool value);
     void setSpriteRendering(const std::string& resourceName);

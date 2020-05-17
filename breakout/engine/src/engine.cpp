@@ -14,6 +14,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
+	std::cout << "Called framebuffer_size_callback" << std::endl;
     glViewport(0, 0, width, height);
     glCheckError();
 }
@@ -79,10 +80,11 @@ void Engine::init_opengl() {
 
 #if DEBUG
 //   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif?
+#endif
 
     // Default to false
     this->resizeable(false);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, false);
 
     this->window = glfwCreateWindow(this->SCREEN_WIDTH, this->SCREEN_HEIGHT, this->game->name.c_str(), nullptr, nullptr);
     if (this->window == nullptr) {
@@ -109,13 +111,40 @@ void Engine::init_opengl() {
     glfwSetKeyCallback(this->window, key_callback_lambda);
     glfwSetFramebufferSizeCallback(this->window, framebuffer_size_callback);
 
-    
-
     // OpenGL configuration
     // --------------------
-    glViewport(0, 0, this->SCREEN_WIDTH, this->SCREEN_HEIGHT);
+	int scaled_width, scaled_height;
+	glfwGetFramebufferSize(this->window, &scaled_width, &scaled_height);
+    glViewport(0, 0, scaled_width, scaled_height);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+int Engine::getScaledWidth() {
+	int scaled_width, scaled_height;
+	glfwGetFramebufferSize(this->window, &scaled_width, &scaled_height);
+	return scaled_width;
+}
+
+int Engine::getScaledHeight() {
+	int scaled_width, scaled_height;
+	glfwGetFramebufferSize(this->window, &scaled_width, &scaled_height);
+	return scaled_height;
+}
+
+float Engine::scaleObj(const float& desired_size) {
+	const float SCALE_SIZE_CONSTANT = this->getScaledWidth() / this->SCREEN_WIDTH;
+	return desired_size * SCALE_SIZE_CONSTANT;
+}
+
+glm::vec2 Engine::scaleObj(const float& desired_width, const float& desired_height) {
+	int scaled_width, scaled_height;
+	glfwGetFramebufferSize(this->window, &scaled_width, &scaled_height);
+
+	const float SCALE_WIDTH_CONSTANT = scaled_width / this->SCREEN_WIDTH;
+	const float SCALE_HEIGHT_CONSTANT = scaled_height / this->SCREEN_HEIGHT;
+
+	return {desired_width * SCALE_WIDTH_CONSTANT, desired_height * SCALE_HEIGHT_CONSTANT};
 }
 
 void Engine::resizeable(bool value) {
