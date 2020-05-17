@@ -45,8 +45,8 @@ if (ENABLE_AUDIO)
 	# Requires SNDFile
 	fetch_extern(sndfile https://github.com/erikd/libsndfile 06ebde50e362966184790c1b53512438a4385d47)
 
-	set(ALSOFT_EXAMPLES OFF)
-	set(ALSOFT_UTILS OFF)
+	set(ALSOFT_EXAMPLES ON)
+	set(ALSOFT_UTILS ON)
 	set(ALSOFT_INSTALL OFF)
 	set(ALSOFT_BUILD_ROUTER ON )
 

@@ -10,6 +10,21 @@
 #include "AL/alc.h"
 #include "sndfile.h"
 
+static void list_audio_devices(const ALCchar *devices) {
+        const ALCchar *device = devices, *next = devices + 1;
+        size_t len = 0;
+
+        fprintf(stdout, "Devices list:\n");
+        fprintf(stdout, "----------\n");
+        while (device && *device != '\0' && next && *next != '\0') {
+                fprintf(stdout, "%s\n", device);
+                len = strlen(device);
+                device += (len + 1);
+                next += (len + 2);
+        }
+        fprintf(stdout, "----------\n");
+}
+
 /* InitAL opens a device and sets up a context using default attributes, making
  * the program ready to call OpenAL functions. */
 int InitAL(const int desired_device = 0) {
@@ -33,16 +48,28 @@ int InitAL(const int desired_device = 0) {
 
     if (!device) {
         std::cerr << "Could not open a device!" << std::endl;
+        
+	// Try and list devices
+        const ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+        if (enumeration == AL_FALSE) {
+             list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+        } else {
+             std::cout << "This device does not support enumeration OpenAL Extension." << std::endl;
+        }
+
+#if _WIN32 || _WIN64
+	std::cout << "Try installing OpenAL: (https://www.openal.org/downloads) and installing `OpenAL Windows Installer`" << std::endl;
+#endif
         return 1;
     }
 
     ctx = alcCreateContext(device, NULL);
     if (ctx == NULL || alcMakeContextCurrent(ctx) == ALC_FALSE) {
-        if(ctx != NULL) {
+        if (ctx != NULL) {
             alcDestroyContext(ctx);
-	    }
+        }
         alcCloseDevice(device);
-	    std::cerr << "Could not set a context!" << std::endl;
+        std::cerr << "Could not set a context!" << std::endl;
         return 1;
     }
 
@@ -251,8 +278,8 @@ void playSound() {
 
         /* Get the source offset. */
         alGetSourcef(source, AL_SEC_OFFSET, &offset);
-		std::cout << "\rOffset: " << offset;
-		std::cout << std::endl;
+	// std::cout << "\rOffset: " << offset;
+	// std::cout << std::endl;
     } while(alGetError() == AL_NO_ERROR && state == AL_PLAYING);
 	std::cout << std::endl;
 
