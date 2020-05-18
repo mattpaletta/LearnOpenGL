@@ -90,7 +90,7 @@ void Breakout::Init() {
 	this->Levels.push_back(two);
 	this->Levels.push_back(three);
 	this->Levels.push_back(four);
-	this->Level = 0;
+
 
 	const glm::vec2 playerPos{
 		this->Width / 2.0f - this->PLAYER_SIZE().x / 2.0f,
@@ -100,8 +100,9 @@ void Breakout::Init() {
 	const glm::vec2 ballPos = playerPos + glm::vec2(this->PLAYER_SIZE().x / 2.0f - this->BALL_RADIUS(), -this->BALL_RADIUS() * 2.0f);
 	this->Ball = new BallObject(ballPos, this->BALL_RADIUS(), this->INITIAL_BALL_VELOCITY(), ResourceManager::GetTexture("face"));
 
-
+	this->Level = 0;
 	this->Lives = 3;
+	this->State = GAME_MENU;
 
 	// Start Music
 #if PLAY_MUSIC
@@ -120,16 +121,6 @@ void Breakout::ResetLevel() {
 		this->Levels[3].Load("../levels/four.lvl", this->Width, this->Height / 2);
 
 	this->Lives = 3;
-}
-
-bool Breakout::IsCompleted() {
-	for (const auto& tile : this->Levels[this->Level].Bricks) {
-		if (!tile.IsSolid && !tile.Destroyed) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 void Breakout::ResetPlayer() {
@@ -176,7 +167,7 @@ void Breakout::Update(double dt) {
 	}
 
 	// Check win condition
-	if (this->State == GAME_ACTIVE && this->IsCompleted()) {
+	if (this->State == GAME_ACTIVE && this->Levels[this->Level].IsCompleted()) {
 		this->ResetLevel();
 		this->ResetPlayer();
 		Effects->Chaos = true;

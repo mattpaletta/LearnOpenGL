@@ -53,7 +53,7 @@ void TextRenderer::Load(const std::string& font, const unsigned int& fontSize) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// then for the first 128 ASCII characters, pre-load/compile their characters and store them
-	for (GLubyte c = 0; c < 128; ++c) {// lol see what I did there 
+	for (GLubyte c = 0; c < 128; ++c) {
 		// load character glyph 
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
 			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;

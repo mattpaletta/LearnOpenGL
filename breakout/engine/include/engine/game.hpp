@@ -1,9 +1,6 @@
 #pragma once
 #include <string>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "game_level.hpp"
 #include "game_object.hpp"
 
@@ -18,11 +15,15 @@ enum GameState {
 
 class Game {
 protected:
-    Engine* engine;
+	friend Engine;
+
+	Engine* engine;
 	GameObject* Player;
+
+	void SetEngineDelegate(Engine* engine);
 public:
     // game state
-    GameState    State;
+    GameState State;
     bool Keys[1024];
 	bool KeysProcessed[1024];
     int Width, Height;
@@ -38,15 +39,12 @@ public:
     // Delete move and copy operators.
     Game(const Game& g) = delete;
     Game& operator=(Game& g) = delete;
-
     Game(Game&& g) = delete;
     Game& operator=(Game&& g) = delete;
 
     // initialize game state (load all shaders/textures/levels)
     virtual void Init();
 	
-    void SetEngineDelegate(Engine* engine);
-
 	virtual void DoCollisions();
 
     // game loop

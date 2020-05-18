@@ -46,6 +46,42 @@ function(fetch_extern_url name url)
 	set_property(GLOBAL PROPERTY ${name}_BINARY_DIR ${binary_dir})
 endfunction(fetch_extern_url)
 
+#<LANG>_CLANG_TIDY  can be set with cache variable CMAKE_<LANG>_CLANG_TIDY
+#<LANG>_CPPCHECK can be set with cache variable CMAKE_<LANG>_CPPCHECK
+#<LANG>_CPPLINT can be set with cache variable CMAKE_<LANG>_CPPLINT
+#<LANG>_INCLUDE_WHAT_YOU_USE  can be set with cache variable CMAKE_<LANG>_INCLUDE_WHAT_YOU_USE
+#LINK_WHAT_YOU_USE can be set with cache variable CMAKE_LINK_WHAT_YOU_USE
+
+set(ENABLE_CLANG_TIDY ON)
+
+find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+if (CMAKE_CXX_CPPCHECK)
+    list(
+        APPEND CMAKE_CXX_CPPCHECK 
+            "--enable=warning"
+            "--inconclusive"
+            "--force" 
+            "--inline-suppr"
+            "--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppressions.txt"
+    )
+endif()
+
+if (ENABLE_CLANG_TIDY)
+	find_program(CLANG_TIDY_EXE NAMES "clang-tidy" DOC "Path to clang-tidy executable" ) 
+	if(NOT CLANG_TIDY_EXE) 
+		message(STATUS "clang-tidy not found.") 
+	else() 
+		message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}") 
+		set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=*,-clang-analyzer-alpha.*")
+	endif()
+endif()
+
+function (run_tidy target_name)
+	if(CLANG_TIDY_EXE) 
+		set_target_properties( target_name PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}" ) 
+	endif()
+endfunction()
+
 set(ENABLE_SDL OFF)
 
 # Add audio library
@@ -109,3 +145,4 @@ message("Engine Deps: " ${ENGINE_DEPS})
 
 target_include_directories(engine PUBLIC include)
 target_link_libraries(engine ${ENGINE_DEPS})
+run_tidy(engine)

@@ -19,12 +19,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glCheckError();
 }
 
-Engine::Engine(Game& _g) : SCREEN_WIDTH(_g.Width), SCREEN_HEIGHT(_g.Height), game(&_g), audioEngine(), textRenderer() {
+Engine::Engine(std::shared_ptr<Game> _g) : SCREEN_WIDTH(_g->Width), SCREEN_HEIGHT(_g->Height), game(_g), audioEngine(), textRenderer() {
     this->init_opengl();
+	this->game->SetEngineDelegate(this);
+
+	// Configure the game
+	this->game->Init();
 }
 
-Engine::Engine(const int width, const int height, Game& _g) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height), game(&_g), spriteRenderer(), textRenderer() {
+Engine::Engine(const int width, const int height, std::shared_ptr<Game> _g) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height), game(_g), spriteRenderer(), textRenderer() {
     this->init_opengl();
+	this->game->SetEngineDelegate(this);
+
+	// Configure the game
+	this->game->Init();
 }
 
 Engine::~Engine() {

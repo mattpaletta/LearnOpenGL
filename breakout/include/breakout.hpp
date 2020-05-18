@@ -52,8 +52,6 @@ public:
 
 	void ProcessInput(double dt) override;
 
-	bool IsCompleted();
-
 	void SpawnPowerUps(GameObject& block);
 	void UpdatePowerUps(float dt);
 	void ActivatePowerUp(const PowerUp& powerUp);

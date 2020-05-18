@@ -5,7 +5,6 @@
 #include <utility>
 #include <memory>
 
-
 int main() {
 #if DEBUG
     std::cout << "Starting Debug" << std::endl;
@@ -13,15 +12,10 @@ int main() {
 
     constexpr int screen_width = 800;
     constexpr int screen_height = 600;
-    Breakout b{screen_width, screen_height};
+    const auto b = std::make_shared<Breakout>(screen_width, screen_height);
 
     Engine e{b};
-    b.SetEngineDelegate(&e);
-
-    // Configure the game
-    b.Init();
-
-    b.State = GAME_MENU;
+	// Game.Init() is called in the constructor
 
     // Start drawing the frames
     e.run();

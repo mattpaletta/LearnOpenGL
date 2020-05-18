@@ -29,7 +29,7 @@ class Engine {
 private:
     int SCREEN_WIDTH;
     int SCREEN_HEIGHT;
-    Game* game = nullptr;
+    std::shared_ptr<Game> game = nullptr;
 
     std::unique_ptr<SpriteRenderer> spriteRenderer = nullptr;
 	AudioEngine audioEngine;
@@ -44,28 +44,30 @@ private:
     void init_opengl();
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 public:
-    Engine(Game& _g);
-    Engine(const int width, const int height, Game& _g);
+    Engine(std::shared_ptr<Game> _g);
+    Engine(const int width, const int height, std::shared_ptr<Game> _g);
     ~Engine();
 
     Engine(const Engine&) = delete;
     Engine& operator=(const Engine&) = delete;
-    Engine(Engine&&) = delete;
-    Engine& operator=(Engine&&) = delete;
+    // Engine(Engine&&) = delete;
+    // Engine& operator=(Engine&&) = delete;
 	
+	// Utility functions
 	int getScaledWidth();
 	int getScaledHeight();
 	glm::vec2 scaleObj(const float& desired_width, const float& desired_height);
 	float scaleObj(const float& desired_size);
 
     void resizeable(bool value);
-    void setSpriteRendering(const std::string& resourceName);
-	SpriteRenderer* getRenderer();
-    void DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size = glm::vec2(10.0f, 10.0f), const float& rotate = 0.0f, const glm::vec3& color = glm::vec3(1.0f));
 
-//    void set_framebuffer_size_callback();
-//    void set_key_callback();
+	// Runs the Render Loop
     void run();
+	
+	// Sprites
+	void setSpriteRendering(const std::string& resourceName);
+	SpriteRenderer* getRenderer();
+	void DrawSprite(const Texture2D& texture, const glm::vec2& position, const glm::vec2& size = glm::vec2(10.0f, 10.0f), const float& rotate = 0.0f, const glm::vec3 & color = glm::vec3(1.0f));
 
 	// Audio
 	void LoadSound(const std::string& soundName, bool b3d = true, bool looping = false);
