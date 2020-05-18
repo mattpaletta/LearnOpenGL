@@ -81,13 +81,15 @@ if (ENABLE_AUDIO)
 	set(OpenAl_DEPS OpenAL sndfile)
 endif()
 
+fetch_extern(freetype2 https://github.com/aseprite/freetype2 VER-2-10-0)
+
 add_library(stb_image include/stb_image/stb_image.cpp include/stb_image/stb_image.h)
 
 file(GLOB SRC_FILES src/*.cpp)
 file(GLOB INC_FILES include/engine/*.hpp include/engine/*.h)
 
 set(ENGINE_SRC ${SRC_FILES} ${INC_FILES})
-set(ENGINE_DEPS glad OpenGL::GL stb_image)
+set(ENGINE_DEPS glad OpenGL::GL stb_image freetype)
 
 add_library(engine ${ENGINE_SRC})
 target_compile_definitions(engine PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
@@ -99,7 +101,7 @@ if (ENABLE_AUDIO)
 
 	list(APPEND ENGINE_DEPS ${OpenAl_DEPS})
 else()
-	target_compile_definitions(engine PUBLIC "-DENABLE_AUDIO=0")
+	# target_compile_definitions(engine PUBLIC "-DENABLE_AUDIO=0")
 endif()
 
 

@@ -21,8 +21,7 @@ int main() {
     // Configure the game
     b.Init();
 
-    //b.State = GAME_MENU;
-	b.State = GAME_ACTIVE;
+    b.State = GAME_MENU;
 
     // Start drawing the frames
     e.run();

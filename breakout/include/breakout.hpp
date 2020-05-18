@@ -34,7 +34,9 @@ private:
 	// Effects Variables
 	float ShakeTime = 0.0f;
 
-	std::vector<PowerUp>  PowerUps;
+	std::vector<PowerUp> PowerUps;
+
+	unsigned int Lives;
 
 public:
     Breakout(const int width, const int height) : Game(width, height, "Breakout") {}
@@ -49,6 +51,8 @@ public:
 	void DoCollisions() override;
 
 	void ProcessInput(double dt) override;
+
+	bool IsCompleted();
 
 	void SpawnPowerUps(GameObject& block);
 	void UpdatePowerUps(float dt);

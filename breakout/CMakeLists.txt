@@ -4,6 +4,10 @@ project(breakout LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(ENABLE_MUSIC OFF)
+set(ENABLE_AUDIO OFF)
+
+
 if(BUILD_STATIC_EXECUTABLES)
 	set(CMAKE_EXE_LINKER_FLAGS -static)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
@@ -40,7 +44,6 @@ message("GLFW3:" ${GLFW3_LIBRARY})
 
 include_directories(${GLFW3_INCLUDE_DIR})
 
-set(ENABLE_AUDIO ON)
 add_subdirectory(engine)
 
 # find_package(Embed REQUIRED)

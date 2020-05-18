@@ -2,13 +2,16 @@
 
 #include <vector>
 
+#if ENABLE_AUDIO
 #include "AL/al.h"
+#endif
 
 // HELPERS
 #include <cassert>
 #include <string>
 #include <iostream>
 
+#if ENABLE_AUDIO
 #include "AL/alc.h"
 #include "sndfile.h"
 
@@ -293,6 +296,7 @@ void playSound() {
     CloseAL();
 }
 } // End Namespace
+#endif // End ENABLE_AUDIO
 
 ///////////////////////////////////////////
 // Start AudioEngine Impl
@@ -309,12 +313,15 @@ AudioEngine::~AudioEngine() {
 }
 
 void AudioEngine::Init() {
+#if ENABLE_AUDIO
 	if (openal::InitAL() != 0) {
 		throw std::runtime_error("Failed to initalize OpenAL");
 	}
+#endif
 }
 
 void AudioEngine::Update() {
+#if ENABLE_AUDIO
 	for (auto& thisSound : this->mSounds) {
 		if (alGetError() == AL_NO_ERROR && thisSound.second.state == AL_PLAYING) {
 			openal::al_nssleep(10000000);
@@ -324,16 +331,19 @@ void AudioEngine::Update() {
 			alGetSourcef(thisSound.second.source, AL_SEC_OFFSET, &thisSound.second.offset);
 		}
 	}
+#endif
 }
 
 void AudioEngine::Shutdown() {
+#if ENABLE_AUDIO
 	openal::CloseAL();
+#endif
 	this->isShutdown = true;
 }
 
 void AudioEngine::LoadSound(const std::string& strSoundName, bool b3d, bool bLooping, bool bStream) {
 	this->mSounds.emplace(strSoundName, SoundDefinition()); // Create default SoundDefinition
-
+#if ENABLE_AUDIO
 	this->mSounds.at(strSoundName).buffer = openal::LoadSound(strSoundName);
 
 	if (!this->mSounds.at(strSoundName).buffer) {
@@ -351,24 +361,33 @@ void AudioEngine::LoadSound(const std::string& strSoundName, bool b3d, bool bLoo
 			this->mSounds.at(strSoundName).err_msg = "Failed to setup sound source";
 		}
 	}
+#endif
 }
 
 void AudioEngine::Play(const std::string& strSoundName, const glm::vec3& vPos, float vVolumedB) {
 	auto& thisSound = this->mSounds.at(strSoundName);
+#if ENABLE_AUDIO
 	alSourcePlay(thisSound.source);
+#endif
 }
 
 void AudioEngine::UnLoadSound(const std::string& strSoundName) {
 	auto& thisSound = this->mSounds.at(strSoundName);
 
+#if ENABLE_AUDIO
 	/* All done. Delete resources */
 	alDeleteSources(1, &thisSound.source);
 	alDeleteBuffers(1, &thisSound.buffer);
+#endif
 	this->mSounds.erase(strSoundName);
 }
 
 bool AudioEngine::IsPlaying(const std::string& strSoundName) const {
+#if ENABLE_AUDIO
 	return this->mSounds.at(strSoundName).state == AL_PLAYING;
+#else
+	return false;
+#endif
 }
 
 bool AudioEngine::isLoaded(const std::string& soundName) const {

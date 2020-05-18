@@ -17,6 +17,7 @@
 #include "game_object.hpp"
 #include "particle.hpp"
 #include "particle_generator.hpp"
+#include "text_renderer.hpp"
 
 #include "audio.hpp"
 
@@ -32,6 +33,7 @@ private:
 
     std::unique_ptr<SpriteRenderer> spriteRenderer = nullptr;
 	AudioEngine audioEngine;
+	TextRenderer textRenderer;
 
     double deltaTime = 0.0f;
     double lastFrame = 0.0f;
@@ -70,4 +72,7 @@ public:
 	void UnloadSound(const std::string& soundName);
 	bool isLoaded(const std::string& soundName);
 	void Play(const std::string& soundName);
+
+	// Text
+	TextRenderer& GetTextRenderer();
 };

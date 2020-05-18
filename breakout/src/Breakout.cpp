@@ -9,6 +9,7 @@
 #include <string>
 #include <filesystem>
 #include <future>
+#include <sstream>
 
 #include "breakout.hpp"
 
@@ -32,12 +33,17 @@ glm::vec2 Breakout::INITIAL_BALL_VELOCITY() {
 }
 
 void Breakout::Init() {
+	// Load Fonts
+	this->engine->GetTextRenderer().Load("../fonts/OCRAEXT.TTF", 24);
+	
 	// Load sounds
 	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/bleep.wav", "non-solid"));
 	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/solid.wav", "solid"));
 	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/powerup.wav", "powerup"));
 	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/paddle.wav", "paddle"));
+#if	PLAY_MUSIC
 	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/breakout.wav", "music"), true, true);
+#endif
 
 	// load shaders
 	ResourceManager::LoadShader("../src/sprite.vert", "../src/sprite.frag", "", "sprite");
@@ -94,8 +100,13 @@ void Breakout::Init() {
 	const glm::vec2 ballPos = playerPos + glm::vec2(this->PLAYER_SIZE().x / 2.0f - this->BALL_RADIUS(), -this->BALL_RADIUS() * 2.0f);
 	this->Ball = new BallObject(ballPos, this->BALL_RADIUS(), this->INITIAL_BALL_VELOCITY(), ResourceManager::GetTexture("face"));
 
+
+	this->Lives = 3;
+
 	// Start Music
+#if PLAY_MUSIC
 	this->engine->Play(ResourceManager::GetSound("music"));
+#endif
 }
 
 void Breakout::ResetLevel() {
@@ -107,6 +118,18 @@ void Breakout::ResetLevel() {
 		this->Levels[2].Load("../levels/three.lvl", this->Width, this->Height / 2);
 	else if (this->Level == 3)
 		this->Levels[3].Load("../levels/four.lvl", this->Width, this->Height / 2);
+
+	this->Lives = 3;
+}
+
+bool Breakout::IsCompleted() {
+	for (const auto& tile : this->Levels[this->Level].Bricks) {
+		if (!tile.IsSolid && !tile.Destroyed) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void Breakout::ResetPlayer() {
@@ -144,14 +167,25 @@ void Breakout::Update(double dt) {
 	}
 
 	if (Ball->Position.y >= this->Height) { // did ball reach bottom edge?
+		--this->Lives;
+		if (this->Lives == 0) {
+			this->ResetLevel();
+			this->State = GAME_MENU;
+		}
+		this->ResetPlayer();
+	}
+
+	// Check win condition
+	if (this->State == GAME_ACTIVE && this->IsCompleted()) {
 		this->ResetLevel();
 		this->ResetPlayer();
+		Effects->Chaos = true;
+		this->State = GAME_WIN;
 	}
 }
 
 void Breakout::Render() {
-	if (this->State == GAME_ACTIVE) {
-
+	if (this->State == GAME_ACTIVE || this->State == GAME_MENU || this->State == GAME_WIN) {
 		// Begin rendering to postprocessing framebuffer
 		Effects->RenderBlock(glfwGetTime(), [this] {
 			// draw background
@@ -173,9 +207,22 @@ void Breakout::Render() {
 			// draw particles
 			this->Particles->Draw();
 
-			// draw ball last
+			// draw ball
 			this->Ball->Draw(*renderer);
+
+			if (this->State == GAME_ACTIVE) {
+				// Draw UI
+				this->engine->GetTextRenderer().RenderText("Lives: " + std::to_string(Lives), 5.0f, 5.0f, 1.0f);
+			}
 		});
+	}
+
+	if (this->State == GAME_MENU) {
+		this->engine->GetTextRenderer().RenderText("Press ENTER to start", 250.0f, Height / 2, 1.0f);
+		this->engine->GetTextRenderer().RenderText("Press W or S to select level", 245.0f, Height / 2 + 20.0f, 0.75f);
+	} else if (this->State == GAME_WIN) {
+		this->engine->GetTextRenderer().RenderText("You WON!!!", 320.0f, Height / 2 - 20.0f, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		this->engine->GetTextRenderer().RenderText("Press ENTER to retry or ESC to quit", 130.0f, Height / 2, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f));
 	}
 }
 
@@ -413,6 +460,14 @@ void Breakout::DoCollisions() {
 }
 
 void Breakout::ProcessInput(double dt) {
+	auto process_key_once = [this](const std::size_t& key) {
+		const auto value = this->Keys[key] && !this->KeysProcessed[key];
+		if (value) {
+			this->KeysProcessed[key] = true;
+		}
+		return value;
+	};
+
 	if (this->State == GAME_ACTIVE) {
 		double velocity = PLAYER_VELOCITY() * dt;
 
@@ -436,6 +491,24 @@ void Breakout::ProcessInput(double dt) {
 
 		if (this->Keys[GLFW_KEY_SPACE]) {
 			Ball->Stuck = false;
+		}
+	} else if (this->State == GAME_MENU) {
+		// For now, only support 1 key at a time in the menu
+		if (process_key_once(GLFW_KEY_ENTER)) {
+			this->State = GAME_ACTIVE;
+		} else if (process_key_once(GLFW_KEY_W)) {
+			this->Level = (this->Level + 1) % this->Levels.size();
+		} else if (process_key_once(GLFW_KEY_S)) {
+			if (this->Level > 0) {
+				--this->Level;
+			} else {
+				this->Level = this->Levels.size() - 1;
+			}
+		}	
+	} else if (this->State == GAME_WIN) {
+		if (process_key_once(GLFW_KEY_ENTER)) {
+			this->Effects->Chaos = false;
+			this->State = GAME_MENU;
 		}
 	}
 }

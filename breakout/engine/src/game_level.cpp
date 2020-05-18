@@ -17,7 +17,7 @@ void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int lev
 		while (std::getline(fstream, line)) { // read each line from level file
 			std::istringstream sstream(line);
 			std::vector<unsigned int> row;
-			while (sstream >> tileCode) {// read each word seperated by spaces
+			while (sstream >> tileCode) { // read each word seperated by spaces
 				row.push_back(tileCode);
 			}
 			tileData.push_back(row);

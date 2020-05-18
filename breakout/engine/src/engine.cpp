@@ -19,11 +19,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glCheckError();
 }
 
-Engine::Engine(Game& _g) : SCREEN_WIDTH(_g.Width), SCREEN_HEIGHT(_g.Height), game(&_g), audioEngine() {
+Engine::Engine(Game& _g) : SCREEN_WIDTH(_g.Width), SCREEN_HEIGHT(_g.Height), game(&_g), audioEngine(), textRenderer() {
     this->init_opengl();
 }
 
-Engine::Engine(const int width, const int height, Game& _g) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height), game(&_g), spriteRenderer() {
+Engine::Engine(const int width, const int height, Game& _g) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height), game(&_g), spriteRenderer(), textRenderer() {
     this->init_opengl();
 }
 
@@ -63,7 +63,8 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
         } else if (action == GLFW_RELEASE) {
             this->game->Keys[key] = false;
-            this->game->released(key);
+			this->game->KeysProcessed[key] = false;
+			this->game->released(key);
         }
     }
 }
@@ -118,6 +119,9 @@ void Engine::init_opengl() {
     glViewport(0, 0, scaled_width, scaled_height);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Initalize TextRenderer
+	this->textRenderer.Init(scaled_width, scaled_height);
 }
 
 int Engine::getScaledWidth() {
@@ -216,4 +220,9 @@ bool Engine::isLoaded(const std::string& soundName) {
 
 void Engine::Play(const std::string& soundName) {
 	this->audioEngine.Play(soundName);
+}
+
+// MARK: Text
+TextRenderer& Engine::GetTextRenderer() {
+	return this->textRenderer;
 }

@@ -23,7 +23,8 @@ protected:
 public:
     // game state
     GameState    State;
-    bool         Keys[1024];
+    bool Keys[1024];
+	bool KeysProcessed[1024];
     int Width, Height;
     std::string name;
 	
