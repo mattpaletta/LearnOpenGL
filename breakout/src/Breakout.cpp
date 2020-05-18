@@ -333,7 +333,7 @@ void Breakout::DoCollisions() {
 				if (!box.IsSolid) {
 					box.Destroyed = true;
 					this->SpawnPowerUps(box);
-					this->engine->Play(ResourceManager::GetSound("powerup"));
+					this->engine->Play(ResourceManager::GetSound("non-solid"));
 				} else {
 					// if block is solid, enable shake effect
 					this->ShakeTime = 0.05f;
