@@ -15,12 +15,14 @@
 #include "stb_image/stb_image.h"
 
 // Instantiate static variables
-std::map<std::string, Texture2D>    ResourceManager::Textures;
-std::map<std::string, Shader>       ResourceManager::Shaders;
+std::map<std::string, Texture2D> ResourceManager::Textures;
+std::map<std::string, Shader> ResourceManager::Shaders;
+std::map<std::string, std::string> ResourceManager::Sounds;
 
 #if DEBUG
-std::set<std::string>    ResourceManager::UnusedTextures;
-std::set<std::string>    ResourceManager::UnusedShaders;
+std::set<std::string> ResourceManager::UnusedTextures;
+std::set<std::string> ResourceManager::UnusedShaders;
+std::set<std::string> ResourceManager::UnusedSounds;
 #endif
 
 Shader& ResourceManager::LoadShader(const std::string& vShaderFile, const std::string& fShaderFile, const std::string& gShaderFile, const std::string& name) {
@@ -28,7 +30,7 @@ Shader& ResourceManager::LoadShader(const std::string& vShaderFile, const std::s
 #if DEBUG
 	UnusedShaders.insert(name);
 #endif
-    return ResourceManager::GetShader(name);
+    return Shaders.at(name);
 }
 
 Shader& ResourceManager::GetShader(const std::string& name) {
@@ -38,7 +40,7 @@ Shader& ResourceManager::GetShader(const std::string& name) {
 	}
 	UnusedShaders.erase(name);
 #endif
-    return Shaders[name];
+    return Shaders.at(name);
 }
 
 Shader& ResourceManager::GetShader(const std::string& name, const std::string& file, const std::size_t& line) {
@@ -50,7 +52,7 @@ Shader& ResourceManager::GetShader(const std::string& name, const std::string& f
 	UnusedShaders.erase(name);
 #endif
 
-	return Shaders[name];
+	return Shaders.at(name);
 }
 
 Texture2D& ResourceManager::LoadTexture(const std::string& file, const bool alpha, const std::string& name) {
@@ -58,7 +60,7 @@ Texture2D& ResourceManager::LoadTexture(const std::string& file, const bool alph
 #if DEBUG
 	UnusedTextures.insert(name);
 #endif
-    return ResourceManager::GetTexture(name);
+    return Textures.at(name);
 }
 
 Texture2D& ResourceManager::GetTexture(const std::string& name) {
@@ -68,10 +70,41 @@ Texture2D& ResourceManager::GetTexture(const std::string& name) {
 #if DEBUG
 	UnusedTextures.erase(name);
 #endif
-    return Textures[name];
+    return Textures.at(name);
+}
+
+std::string ResourceManager::RegisterSound(const std::string& file, const std::string& name) {
+	Sounds.insert_or_assign(name, file);	
+#if DEBUG
+	std::ifstream f(file);
+	if (!f.good()) {
+		std::cout << "Failed to open file: " << file << std::endl;
+	}
+	f.close();
+
+	UnusedSounds.insert(name);
+#endif
+	return file;
+}
+
+std::string& ResourceManager::GetSound(const std::string& name) {
+	if (Sounds.find(name) == Sounds.end()) {
+		std::cout << "Failed to get texture: " << name << std::endl;
+	}
+#if DEBUG
+	UnusedSounds.erase(name);
+#endif
+	return Sounds.at(name);
 }
 
 void ResourceManager::Clear() {
+	// Warning about sounds
+#if DEBUG
+	for (const auto& iter : UnusedSounds) {
+		std::cout << "Warning: sound loaded but never used: (" << iter << ")" << std::endl;
+	}
+#endif
+
     // (properly) delete all shaders
     for (const auto& iter : Shaders) {
 #if DEBUG

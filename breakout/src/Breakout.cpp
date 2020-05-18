@@ -32,6 +32,13 @@ glm::vec2 Breakout::INITIAL_BALL_VELOCITY() {
 }
 
 void Breakout::Init() {
+	// Load sounds
+	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/bleep.wav", "non-solid"));
+	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/solid.wav", "solid"));
+	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/powerup.wav", "powerup"));
+	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/paddle.wav", "paddle"));
+	this->engine->LoadSound(ResourceManager::RegisterSound("../sounds/breakout.wav", "music"), true, true);
+
 	// load shaders
 	ResourceManager::LoadShader("../src/sprite.vert", "../src/sprite.frag", "", "sprite");
 	ResourceManager::LoadShader("../src/particle.vert", "../src/particle.frag", "", "particle");
@@ -86,6 +93,9 @@ void Breakout::Init() {
 
 	const glm::vec2 ballPos = playerPos + glm::vec2(this->PLAYER_SIZE().x / 2.0f - this->BALL_RADIUS(), -this->BALL_RADIUS() * 2.0f);
 	this->Ball = new BallObject(ballPos, this->BALL_RADIUS(), this->INITIAL_BALL_VELOCITY(), ResourceManager::GetTexture("face"));
+
+	// Start Music
+	this->engine->Play(ResourceManager::GetSound("music"));
 }
 
 void Breakout::ResetLevel() {
@@ -323,13 +333,12 @@ void Breakout::DoCollisions() {
 				if (!box.IsSolid) {
 					box.Destroyed = true;
 					this->SpawnPowerUps(box);
-					// play bleep.mp3
-				}
-				else {
+					this->engine->Play(ResourceManager::GetSound("powerup"));
+				} else {
 					// if block is solid, enable shake effect
 					this->ShakeTime = 0.05f;
 					this->Effects->Shake = true;
-					// Play solid.wav
+					this->engine->Play(ResourceManager::GetSound("solid"));
 				}
 
 				// collision resolution
@@ -342,8 +351,7 @@ void Breakout::DoCollisions() {
 						float penetration = Ball->Radius - std::abs(diff_vector.x);
 						if (dir == LEFT) {
 							Ball->Position.x += penetration; // move ball to right
-						}
-						else {
+						} else {
 							Ball->Position.x -= penetration; // move ball to left;
 						}
 					} else { // vertical collision
@@ -352,8 +360,7 @@ void Breakout::DoCollisions() {
 						float penetration = Ball->Radius - std::abs(diff_vector.y);
 						if (dir == UP) {
 							Ball->Position.y -= penetration; // move ball back up
-						}
-						else {
+						} else {
 							Ball->Position.y += penetration; // move ball back down
 						}
 					}
@@ -375,7 +382,7 @@ void Breakout::DoCollisions() {
 				this->ActivatePowerUp(powerUp);
 				powerUp.Destroyed = true;
 				powerUp.Activated = true;
-				// Play powerup.wav
+				this->engine->Play(ResourceManager::GetSound("powerup"));
 			}
 		}
 	}
@@ -400,7 +407,8 @@ void Breakout::DoCollisions() {
 
 		// if Sticky powerup is activated, also stick ball to paddle once new velocity vectors were calculated
 		Ball->Stuck = Ball->Sticky;
-		// Play bleep.wav
+
+		this->engine->Play(ResourceManager::GetSound("paddle"));
 	}
 }
 

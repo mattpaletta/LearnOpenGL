@@ -18,10 +18,7 @@
 #include "particle.hpp"
 #include "particle_generator.hpp"
 
-#if ENABLE_AUDIO
 #include "audio.hpp"
-#endif
-
 
 #include <GLFW/glfw3.h>
 #include <utility>
@@ -34,6 +31,7 @@ private:
     Game* game = nullptr;
 
     std::unique_ptr<SpriteRenderer> spriteRenderer = nullptr;
+	AudioEngine audioEngine;
 
     double deltaTime = 0.0f;
     double lastFrame = 0.0f;
@@ -66,4 +64,10 @@ public:
 //    void set_framebuffer_size_callback();
 //    void set_key_callback();
     void run();
+
+	// Audio
+	void LoadSound(const std::string& soundName, bool b3d = true, bool looping = false);
+	void UnloadSound(const std::string& soundName);
+	bool isLoaded(const std::string& soundName);
+	void Play(const std::string& soundName);
 };

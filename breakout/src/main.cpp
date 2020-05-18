@@ -11,8 +11,6 @@ int main() {
     std::cout << "Starting Debug" << std::endl;
 #endif
 
-	playSound();
-
     constexpr int screen_width = 800;
     constexpr int screen_height = 600;
     Breakout b{screen_width, screen_height};

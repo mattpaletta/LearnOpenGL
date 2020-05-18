@@ -28,6 +28,24 @@ function(fetch_extern name repo tag)
 	set_property(GLOBAL PROPERTY ${name}_BINARY_DIR ${binary_dir})
 endfunction(fetch_extern)
 
+function(fetch_extern_url name url)
+	FetchContent_Declare(
+		${name}
+		URL ${url}
+	)
+	FetchContent_GetProperties(${name})
+	if (NOT ${name}_POPULATED)
+		FetchContent_Populate(${name})
+	endif()
+	set(source_dir ${${name}_SOURCE_DIR})
+	set(binary_dir ${${name}_BINARY_DIR})
+#	add_subdirectory(${source_dir} ${binary_dir} EXCLUDE_FROM_ALL)
+	
+	# Store source & binary dir as global variables
+	set_property(GLOBAL PROPERTY ${name}_SOURCE_DIR ${source_dir})
+	set_property(GLOBAL PROPERTY ${name}_BINARY_DIR ${binary_dir})
+endfunction(fetch_extern_url)
+
 set(ENABLE_SDL OFF)
 
 # Add audio library
@@ -43,12 +61,18 @@ endif()
 
 if (ENABLE_AUDIO)
 	# Requires SNDFile
+	set(BUILD_PROGRAMS OFF)
+	set(BUILD_EXAMPLES OFF)
+	set(ENABLE_CPACK OFF)
+	set(BUILD_TESTING OFF)
+	set(BUILD_REGTEST OFF)
+	set(ENABLE_PACKAGE_CONFIG OFF)
 	fetch_extern(sndfile https://github.com/erikd/libsndfile 06ebde50e362966184790c1b53512438a4385d47)
 
-	set(ALSOFT_EXAMPLES ON)
+	set(ALSOFT_EXAMPLES OFF)
 	set(ALSOFT_UTILS ON)
 	set(ALSOFT_INSTALL OFF)
-	set(ALSOFT_BUILD_ROUTER ON )
+	set(ALSOFT_BUILD_ROUTER ON)
 
 	fetch_extern(openal https://github.com/kcat/openal-soft openal-soft-1.20.1)
 	get_property(openal_SOURCE_DIR GLOBAL PROPERTY openal_SOURCE_DIR)

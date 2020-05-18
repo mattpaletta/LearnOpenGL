@@ -22,10 +22,12 @@ public:
     // resource storage
     static std::map<std::string, Shader>    Shaders;
     static std::map<std::string, Texture2D> Textures;
+	static std::map<std::string, std::string> Sounds;
 
 #if DEBUG
 	static std::set<std::string> UnusedShaders;
 	static std::set<std::string> UnusedTextures;
+	static std::set<std::string> UnusedSounds;
 #endif
 
 	// loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
@@ -40,6 +42,9 @@ public:
 
     // retrieves a stored texture
     static Texture2D& GetTexture(const std::string& name);
+
+	static std::string RegisterSound(const std::string& file, const std::string& name);
+	static std::string& GetSound(const std::string& name);
 
     // properly de-allocates all loaded resources
     static void Clear();

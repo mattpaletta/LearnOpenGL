@@ -19,7 +19,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glCheckError();
 }
 
-Engine::Engine(Game& _g) : SCREEN_WIDTH(_g.Width), SCREEN_HEIGHT(_g.Height), game(&_g) {
+Engine::Engine(Game& _g) : SCREEN_WIDTH(_g.Width), SCREEN_HEIGHT(_g.Height), game(&_g), audioEngine() {
     this->init_opengl();
 }
 
@@ -121,13 +121,19 @@ void Engine::init_opengl() {
 }
 
 int Engine::getScaledWidth() {
-	int scaled_width, scaled_height;
+	int scaled_width = 0, scaled_height = 0;
+	if (this == nullptr) {
+		return 0;
+	}
 	glfwGetFramebufferSize(this->window, &scaled_width, &scaled_height);
 	return scaled_width;
 }
 
 int Engine::getScaledHeight() {
 	int scaled_width, scaled_height;
+	if (this == nullptr) {
+		return 0;
+	}
 	glfwGetFramebufferSize(this->window, &scaled_width, &scaled_height);
 	return scaled_height;
 }
@@ -182,6 +188,9 @@ void Engine::run() {
         this->game->Render();
         glCheckError();
 
+		// Run Audio Tick
+		this->audioEngine.Update();
+
         glfwSwapBuffers(this->window);
     }
 
@@ -190,4 +199,21 @@ void Engine::run() {
     ResourceManager::Clear();
 
     glfwTerminate();
+}
+
+// MARK: Audio
+void Engine::LoadSound(const std::string& soundName, bool b3d, bool looping) {
+	this->audioEngine.LoadSound(soundName, b3d, looping);
+}
+
+void Engine::UnloadSound(const std::string& soundName) {
+	this->audioEngine.UnLoadSound(soundName);
+}
+
+bool Engine::isLoaded(const std::string& soundName) {
+	return this->audioEngine.isLoaded(soundName);
+}
+
+void Engine::Play(const std::string& soundName) {
+	this->audioEngine.Play(soundName);
 }

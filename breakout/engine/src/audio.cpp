@@ -1,5 +1,7 @@
 #include "engine/audio.hpp"
 
+#include <vector>
+
 #include "AL/al.h"
 
 // HELPERS
@@ -9,6 +11,8 @@
 
 #include "AL/alc.h"
 #include "sndfile.h"
+
+namespace openal {
 
 static void list_audio_devices(const ALCchar *devices) {
         const ALCchar *device = devices, *next = devices + 1;
@@ -102,7 +106,6 @@ void CloseAL(void) {
     alcDestroyContext(ctx);
     alcCloseDevice(device);
 }
-
 
 const std::string FormatName(ALenum format) {
     switch(format) {
@@ -270,7 +273,7 @@ void playSound() {
     alSourcei(source, AL_BUFFER, (ALint) buffer);
     assert(alGetError() == AL_NO_ERROR && "Failed to setup sound source");
 
-     /* Play the sound until it finishes. */
+    /* Play the sound until it finishes. */
     alSourcePlay(source);
     do {
         al_nssleep(10000000);
@@ -288,4 +291,86 @@ void playSound() {
     alDeleteBuffers(1, &buffer);
 
     CloseAL();
+}
+} // End Namespace
+
+///////////////////////////////////////////
+// Start AudioEngine Impl
+//////////////////////////////////////////
+
+AudioEngine::AudioEngine() : isShutdown(false), mSounds() {
+	this->Init();
+}
+
+AudioEngine::~AudioEngine() {
+	if (!this->isShutdown) {
+		this->Shutdown();
+	}
+}
+
+void AudioEngine::Init() {
+	if (openal::InitAL() != 0) {
+		throw std::runtime_error("Failed to initalize OpenAL");
+	}
+}
+
+void AudioEngine::Update() {
+	for (auto& thisSound : this->mSounds) {
+		if (alGetError() == AL_NO_ERROR && thisSound.second.state == AL_PLAYING) {
+			openal::al_nssleep(10000000);
+			alGetSourcei(thisSound.second.source, AL_SOURCE_STATE, &thisSound.second.state);
+
+			/* Get the source offset. */
+			alGetSourcef(thisSound.second.source, AL_SEC_OFFSET, &thisSound.second.offset);
+		}
+	}
+}
+
+void AudioEngine::Shutdown() {
+	openal::CloseAL();
+	this->isShutdown = true;
+}
+
+void AudioEngine::LoadSound(const std::string& strSoundName, bool b3d, bool bLooping, bool bStream) {
+	this->mSounds.emplace(strSoundName, SoundDefinition()); // Create default SoundDefinition
+
+	this->mSounds.at(strSoundName).buffer = openal::LoadSound(strSoundName);
+
+	if (!this->mSounds.at(strSoundName).buffer) {
+		// CloseAL();
+		this->mSounds.at(strSoundName).err_msg = "Failed to initialize OpenAL";
+	} else {
+		if (bLooping) {
+			// Defaults to false
+			alSourcei(this->mSounds.at(strSoundName).source, AL_LOOPING, AL_TRUE);
+		}
+
+		alGenSources(1, &this->mSounds.at(strSoundName).source);
+		alSourcei(this->mSounds.at(strSoundName).source, AL_BUFFER, (ALint) this->mSounds.at(strSoundName).buffer);
+		if (alGetError() == AL_NO_ERROR) {
+			this->mSounds.at(strSoundName).err_msg = "Failed to setup sound source";
+		}
+	}
+}
+
+void AudioEngine::Play(const std::string& strSoundName, const glm::vec3& vPos, float vVolumedB) {
+	auto& thisSound = this->mSounds.at(strSoundName);
+	alSourcePlay(thisSound.source);
+}
+
+void AudioEngine::UnLoadSound(const std::string& strSoundName) {
+	auto& thisSound = this->mSounds.at(strSoundName);
+
+	/* All done. Delete resources */
+	alDeleteSources(1, &thisSound.source);
+	alDeleteBuffers(1, &thisSound.buffer);
+	this->mSounds.erase(strSoundName);
+}
+
+bool AudioEngine::IsPlaying(const std::string& strSoundName) const {
+	return this->mSounds.at(strSoundName).state == AL_PLAYING;
+}
+
+bool AudioEngine::isLoaded(const std::string& soundName) const {
+	return this->mSounds.find(soundName) != this->mSounds.end();
 }
